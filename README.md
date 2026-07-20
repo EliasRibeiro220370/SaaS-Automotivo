@@ -106,22 +106,6 @@ O Automotive SaaS centraliza essas informações em uma única plataforma, propo
 
 O projeto foi estruturado utilizando uma arquitetura baseada em componentes reutilizáveis, facilitando a manutenção, escalabilidade e evolução da aplicação.
 
-```text
-src
-│
-├── assets
-├── components
-├── contexts
-├── hooks
-├── pages
-├── services
-├── types
-├── utils
-├── App.tsx
-├── main.tsx
-└── index.css
-```
-
 ---
 
 # 📱 Responsividade
