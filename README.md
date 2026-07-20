@@ -1,74 +1,219 @@
-# AutoFlow: Automotive CRM & AI Copilot SaaS Showcase
+<p align="center">
+ <img width="1774" height="887" alt="Image" src="https://github.com/user-attachments/assets/927e3364-a7e6-4a1e-bef9-deb2479744ba" />
+</p>
 
-AutoFlow is a high-fidelity, full-stack Mini-SaaS showcase designed for modern automotive workshops, mechanics, detailing studios, and dealership repair bays. Built with a responsive React (Vite) frontend, Tailwind CSS, and an Express server integrated with the server-side `@google/genai` Gemini AI engine.
+<h1 align="center">🚗 Automotive SaaS Showcase</h1>
 
-## 🌟 Key Functional Modules
+<p align="center">
+Sistema de gestão para oficinas mecânicas desenvolvido com <strong>React</strong>, <strong>TypeScript</strong>, <strong>Vite</strong>, <strong>Tailwind CSS</strong> e <strong>Supabase</strong>, criado para demonstrar a arquitetura e as funcionalidades de um Micro SaaS voltado para o setor automotivo.
+</p>
 
-1. **Operations Analytics Desk (Dashboard)**: High-level KPI meters tracking active work orders, settled revenue, low-stock spare parts, and interactive workshop activity feeds.
-2. **Interactive Repair Pipeline (Kanban Board)**: Track and route vehicle statuses through standard repair stages (Receiving Intake, Diagnostics, Active Lift, Quality Audit, Ready for Pickup). Manage individual check sheets, repair notes, and target costs.
-3. **AI-Powered Diagnostics Assistant**: Consult an AI expert powered by server-side Gemini 3.5 Flash. Supply vehicle symptoms and OBD-II codes to receive a detailed, structured diagnostic report with probable root causes, labor estimates, specific replacement parts, and actionable technician guides. Export AI estimates directly to quote sheets with one-click!
-4. **AI Customer Advisor**: Draft polished, empathetic, or concise customer status updates with adjustable communication tones (Professional, Friendly, Urgent, Reassuring) to reduce back-and-forth client communication.
-5. **Inventory Room Manager**: Manage active parts catalog stocks, supplier brands, shelf bin mapping, and wholesale markup margins with real-time stock deductions and safe-threshold alarms.
-6. **Quote Estimate Builder**: Dynamically subtotal parts and hourly labor fees, automatically calculate state tax offsets, approve client estimates, and output professional print-ready customer invoices.
-
----
-
-## 🛠️ Full-Stack Technical Stack
-
-- **Frontend Core**: React 19, TypeScript, Vite
-- **Animations & Routing**: Motion (f.k.a. Framer Motion) for staggered entries and fluid tab transitions.
-- **Data Visualizations**: Recharts for interactive operational pipeline bar graphs.
-- **Backend Core**: Node.js Express server to shield Gemini API calls securely.
-- **AI Integration**: `@google/genai` TypeScript SDK executing server-side prompts.
-- **Persistence**: `localStorage` cache synchronization to prevent data loss on browser refresh.
+<p align="center">
+🚀 Desenvolvido por <strong>Elias Ribeiro</strong>
+</p>
 
 ---
 
-## 📂 Project Architecture
+# 📌 Sobre este projeto
 
-```
-/
-├── server.ts              # Full-Stack Express Server (API routes & static client serving)
-├── package.json           # Application dependencies and build config scripts
-├── .env.example           # Shared environment variable keys
-├── index.html             # Main entry mounting point
-├── src/
-│   ├── App.tsx            # Main shell with desktop sidebars and responsive panels
-│   ├── main.tsx           # React mounting entry
-│   ├── index.css          # Tailwind imports, typography, and custom styles
-│   ├── types/
-│   │   └── index.ts       # Shared TypeScript schemas (WorkOrders, Parts, Quotes, etc.)
-│   ├── contexts/
-│   │   └── SaaSContext.tsx# State engine providing mock data and localStorage sync
-│   ├── services/
-│   │   └── api.ts         # Server-side API connectors for AI actions
-│   └── pages/
-│       ├── Dashboard.tsx  # Analytics charts and activity trackers
-│       ├── RepairPipeline.tsx # Kanban job boards and mechanical check sheets
-│       ├── AiCopilot.tsx  # AI diagnostics and service writer sheets
-│       ├── InventoryHub.tsx# Part bins, safety margins, and restocking
-│       └── QuoteGenerator.tsx # Billing line subtotals and printing previews
+Este repositório apresenta uma **versão demonstrativa** de um **Micro SaaS para gestão de oficinas mecânicas**, desenvolvido com o objetivo de digitalizar o processo de atendimento ao cliente e gerenciamento de serviços automotivos.
+
+A aplicação foi idealizada para atender oficinas de pequeno e médio porte, oferecendo recursos para cadastro de clientes, veículos, checklists digitais, orçamentos, ordens de serviço e acompanhamento de garantias.
+
+Para preservar informações comerciais e dados sensíveis, esta versão utiliza dados fictícios e foi preparada exclusivamente para demonstração em portfólio.
+
+---
+
+# 💼 Problema que o sistema resolve
+
+Muitas oficinas ainda utilizam fichas em papel, planilhas ou aplicativos de mensagens para controlar seus atendimentos.
+
+O Automotive SaaS centraliza essas informações em uma única plataforma, proporcionando maior organização, agilidade e segurança no gerenciamento dos serviços.
+
+---
+
+# 🚀 Principais Funcionalidades
+
+* 👤 Cadastro de clientes
+* 🚗 Cadastro de veículos
+* 📋 Checklist digital do veículo
+* 📷 Registro fotográfico (quando disponível)
+* 📝 Geração de orçamento
+* 📄 Ordem de serviço
+* 💰 Controle financeiro básico
+* 📅 Controle de garantia dos serviços
+* 📂 Histórico completo dos atendimentos
+* 🔍 Pesquisa rápida de clientes e veículos
+* 📱 Interface responsiva
+* ♿ Boas práticas de acessibilidade
+* ⚡ Alto desempenho utilizando React + Vite
+
+---
+
+# 🛠️ Tecnologias Utilizadas
+
+<p align="left">
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" height="45"/>
+
+<img width="10"/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" height="45"/>
+
+</p>
+
+---
+
+# 🏗️ Arquitetura
+
+O projeto foi estruturado utilizando uma arquitetura baseada em componentes reutilizáveis, facilitando a manutenção, escalabilidade e evolução da aplicação.
+
+```text
+src
+│
+├── assets
+├── components
+├── contexts
+├── hooks
+├── pages
+├── services
+├── types
+├── utils
+├── App.tsx
+├── main.tsx
+└── index.css
 ```
 
 ---
 
-## 🚀 Running locally
+# 📱 Responsividade
 
-### 1. Configure Secrets
-Ensure you copy `.env.example` to `.env` and configure your API key:
-```env
-GEMINI_API_KEY="your_api_key_here"
-```
+A aplicação foi desenvolvida seguindo o conceito **Mobile First**, garantindo uma excelente experiência em:
 
-### 2. Development Execution
-Boots Express on Port 3000 alongside the active Vite development middleware:
+* 📱 Smartphones
+* 📲 Tablets
+* 💻 Notebooks
+* 🖥️ Desktop
+
+---
+
+# ♿ Acessibilidade
+
+Foram adotadas boas práticas de acessibilidade visando uma navegação mais intuitiva e inclusiva:
+
+* Estrutura HTML semântica
+* Componentes reutilizáveis
+* Navegação intuitiva
+* Layout adaptável
+* Contraste adequado entre elementos
+* Interface otimizada para diferentes dispositivos
+
+---
+
+# ⚡ Performance
+
+Durante o desenvolvimento foram utilizadas técnicas para otimizar o desempenho da aplicação:
+
+* Componentização em React
+* Organização modular do código
+* Build otimizado com Vite
+* Carregamento eficiente de recursos
+* Estrutura preparada para evolução
+
+---
+
+# 🎯 Objetivos do Projeto
+
+* Demonstrar conhecimentos em React e TypeScript.
+* Criar uma aplicação escalável e organizada.
+* Simular um Micro SaaS para gestão automotiva.
+* Aplicar boas práticas de UI/UX.
+* Desenvolver uma solução voltada para problemas reais do mercado.
+
+---
+
+# 🚀 Melhorias Futuras
+
+* [ ] Dashboard com indicadores
+* [ ] Controle de estoque
+* [ ] Agenda de serviços
+* [ ] Emissão de PDF
+* [ ] Integração com WhatsApp
+* [ ] Controle financeiro completo
+* [ ] Painel administrativo
+* [ ] Relatórios gerenciais
+* [ ] Notificações automáticas
+* [ ] PWA (Progressive Web App)
+
+---
+
+# 🚀 Como executar
+
 ```bash
+git clone https://github.com/SEU-USUARIO/automotive-saas-showcase
+
+cd automotive-saas-showcase
+
+npm install
+
 npm run dev
 ```
 
-### 3. Production Bundling & Build
-Transpiles and bundles both the frontend static assets and the server-side entrypoint into a standalone `dist/server.cjs` via `esbuild`:
-```bash
-npm run build
-npm start
-```
+---
+
+# 👨‍💻 Desenvolvedor
+
+**Elias Ribeiro**
+
+Desenvolvedor Front-end especializado em React, TypeScript e aplicações web modernas.
+
+📧 **E-mail:** [seu-email-profissional@seudominio.com.br](mailto:seu-email-profissional@seudominio.com.br)
+
+---
+
+# 📜 Licença
+
+Este projeto representa uma **versão demonstrativa** de um Micro SaaS desenvolvido para fins de portfólio.
+
+Algumas funcionalidades, dados e configurações foram adaptados para preservar informações comerciais e garantir a privacidade de possíveis clientes.
+
+---
+
+## ⭐ Gostou do projeto?
+
+Se este projeto foi útil ou inspirador, deixe uma ⭐ no repositório.
+
+Isso incentiva o desenvolvimento de novas soluções e fortalece a comunidade de desenvolvedores.
+
