@@ -227,7 +227,10 @@ function AppContent() {
                 {activeTab === "dashboard" && (
                   <Dashboard 
                     setActiveTab={setActiveTab} 
-                    openCreateJobModal={() => setCreateModalOpen(true)} 
+                    openCreateJobModal={() => {
+                      setActiveTab("pipeline");
+                      setCreateModalOpen(true);
+                    }} 
                   />
                 )}
                 {activeTab === "pipeline" && (
