@@ -12,6 +12,14 @@ Sistema de gestão para oficinas mecânicas desenvolvido com <strong>React</stro
 🚀 Desenvolvido por <strong>Elias Ribeiro</strong>
 </p>
 
+# 🌐 Projeto Original
+
+A versão original deste projeto encontra-se em produção e pode ser acessada através do link abaixo:
+
+**🔗 https://SEU-LINK-AQUI.com.br**
+
+> **Observação:** Este repositório apresenta uma versão demonstrativa preparada exclusivamente para fins de portfólio. Algumas funcionalidades, dados e configurações foram adaptados para preservar informações comerciais e a privacidade do cliente.
+
 ---
 
 # 📌 Sobre este projeto
