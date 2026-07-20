@@ -23,6 +23,7 @@ interface SaaSContextType {
   restockPart: (id: string, qty: number) => void;
   usePartInService: (sku: string, qty: number) => boolean;
   addQuote: (quote: Omit<Quote, "id" | "dateCreated" | "status"> & { items: Omit<QuoteItem, "id">[] }) => void;
+  updateQuote: (id: string, updatedQuote: Partial<Omit<Quote, "id" | "dateCreated">>) => void;
   updateQuoteStatus: (id: string, status: "Draft" | "Sent" | "Approved") => void;
   deleteQuote: (id: string) => void;
   addActivity: (category: ActivityLog["category"], type: ActivityLog["type"], text: string) => void;
@@ -264,6 +265,26 @@ export const SaaSProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addActivity("quote", "info", `Novo Orçamento/Estimativa ${nextId} criado para ${quote.customerName}.`);
   };
 
+  const updateQuote = (id: string, updatedQuoteFields: Partial<Omit<Quote, "id" | "dateCreated">>) => {
+    setQuotes(prev => prev.map(q => {
+      if (q.id === id) {
+        addActivity("quote", "info", `Orçamento ${id} atualizado com novas informações/serviços.`);
+        const itemsWithIds = updatedQuoteFields.items 
+          ? updatedQuoteFields.items.map((item, idx) => ({
+              ...item,
+              id: item.id || `qi-${Date.now()}-${idx}`
+            }))
+          : q.items;
+        return {
+          ...q,
+          ...updatedQuoteFields,
+          items: itemsWithIds
+        };
+      }
+      return q;
+    }));
+  };
+
   const updateQuoteStatus = (id: string, status: "Draft" | "Sent" | "Approved") => {
     setQuotes(prev => prev.map(q => {
       if (q.id === id) {
@@ -310,6 +331,7 @@ export const SaaSProvider: React.FC<{ children: React.ReactNode }> = ({ children
       restockPart,
       usePartInService,
       addQuote,
+      updateQuote,
       updateQuoteStatus,
       deleteQuote,
       addActivity,

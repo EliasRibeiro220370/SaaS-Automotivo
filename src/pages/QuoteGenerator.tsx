@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Database,
   ArrowRight,
-  MessageSquare
+  MessageSquare,
+  Edit
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -24,7 +25,7 @@ interface QuoteGeneratorProps {
 }
 
 export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) => {
-  const { quotes, inventory, workOrders, addQuote, updateQuoteStatus, deleteQuote, addActivity, addWorkOrder } = useSaaS();
+  const { quotes, inventory, workOrders, addQuote, updateQuote, updateQuoteStatus, deleteQuote, addActivity, addWorkOrder } = useSaaS();
 
   // Create Quote Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -45,6 +46,13 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
   const [laborName, setLaborName] = useState("");
   const [laborHours, setLaborHours] = useState("1.0");
   const [laborRate, setLaborRate] = useState("120");
+
+  // Edit Quote Modal State
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editCustomerName, setEditCustomerName] = useState("");
+  const [editVehicleModel, setEditVehicleModel] = useState("");
+  const [editTaxRate, setEditTaxRate] = useState("8");
+  const [editFormItems, setEditFormItems] = useState<QuoteItem[]>([]);
 
   // Inspection/Preview Quote State
   const [inspectedQuoteId, setInspectedQuoteId] = useState<string | null>(null);
@@ -129,52 +137,63 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
     Draft: "Rascunho"
   };
 
-  // Add Item Line to creation list
+  // Add Item Line to creation/edit list
   const handleAddLineItem = () => {
+    let newItem: Omit<QuoteItem, "id">;
     if (itemType === "part") {
       if (selectedPartSku === "custom") {
         if (!customPartName || !partPrice) return;
-        setFormItems([...formItems, {
+        newItem = {
           name: customPartName,
           quantity: parseInt(quantity) || 1,
           unitPrice: parseFloat(partPrice) || 0,
           laborHours: 0,
           laborRate: 0,
           type: "part"
-        }]);
+        };
         setCustomPartName("");
         setPartPrice("");
       } else {
         const inventoryPart = inventory.find(p => p.sku === selectedPartSku);
         if (!inventoryPart) return;
-        setFormItems([...formItems, {
+        newItem = {
           name: inventoryPart.name,
           quantity: parseInt(quantity) || 1,
           unitPrice: inventoryPart.price,
           laborHours: 0,
           laborRate: 0,
           type: "part"
-        }]);
+        };
       }
       setSelectedPartSku("");
     } else {
       if (!laborName) return;
-      setFormItems([...formItems, {
+      newItem = {
         name: laborName,
         quantity: 1,
         unitPrice: 0,
         laborHours: parseFloat(laborHours) || 1,
         laborRate: parseFloat(laborRate) || 120,
         type: "labor"
-      }]);
+      };
       setLaborName("");
       setLaborHours("1.0");
     }
     setQuantity("1");
+
+    if (isEditOpen) {
+      setEditFormItems([...editFormItems, { ...newItem, id: `qi-${Date.now()}` }]);
+    } else {
+      setFormItems([...formItems, newItem]);
+    }
   };
 
   const handleRemoveLineItem = (index: number) => {
-    setFormItems(formItems.filter((_, idx) => idx !== index));
+    if (isEditOpen) {
+      setEditFormItems(editFormItems.filter((_, idx) => idx !== index));
+    } else {
+      setFormItems(formItems.filter((_, idx) => idx !== index));
+    }
   };
 
   const handleSaveQuote = (e: React.FormEvent) => {
@@ -197,6 +216,29 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
     setIsCreateOpen(false);
   };
 
+  const handleOpenEditModal = () => {
+    if (!activeInspectedQuote) return;
+    setEditCustomerName(activeInspectedQuote.customerName);
+    setEditVehicleModel(activeInspectedQuote.vehicleModel);
+    setEditTaxRate(String(activeInspectedQuote.taxRate * 100));
+    setEditFormItems(activeInspectedQuote.items);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdateQuote = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeInspectedQuote || !editCustomerName || !editVehicleModel || editFormItems.length === 0) return;
+
+    updateQuote(activeInspectedQuote.id, {
+      customerName: editCustomerName,
+      vehicleModel: editVehicleModel,
+      taxRate: (parseFloat(editTaxRate) || 0) / 100,
+      items: editFormItems
+    });
+
+    setIsEditOpen(false);
+  };
+
   // Calculations Helper
   const calculateTotals = (itemsList: Omit<QuoteItem, "id">[], rateTax: number) => {
     const partsCost = itemsList
@@ -215,6 +257,7 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
   };
 
   const currentFormTotals = calculateTotals(formItems, (parseFloat(taxRate) || 0) / 100);
+  const currentEditFormTotals = calculateTotals(editFormItems, (parseFloat(editTaxRate) || 0) / 100);
 
   return (
     <div className="space-y-6">
@@ -432,6 +475,16 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
                   </button>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleOpenEditModal}
+                      className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      title="Adicionar mais serviços ou alterar itens deste orçamento"
+                      id="btn-edit-quote"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                      Editar Orçamento
+                    </button>
+
                     <button
                       onClick={handleOpenWhatsAppDialog}
                       className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer border border-emerald-500"
@@ -822,6 +875,298 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
                     className="bg-slate-900 text-white hover:bg-slate-800 py-2 px-5 rounded-xl text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer"
                   >
                     Confirmar e Gerar Orçamento
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Slide-out Panel: Edit Quote Modal */}
+      <AnimatePresence>
+        {isEditOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsEditOpen(false)}
+              className="fixed inset-0 bg-black"
+            />
+
+            {/* Modal Body */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden border border-slate-100 z-10 flex flex-col max-h-[90vh]"
+              id="quote-edit-modal"
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div className="flex items-center gap-2 text-slate-800">
+                  <Edit className="h-5 w-5 text-indigo-500" />
+                  <div>
+                    <h3 className="font-bold text-base text-slate-950">Editar Orçamento</h3>
+                    <p className="text-[11px] text-slate-500 font-medium">Adicione ou remova peças e serviços para atualizar o orçamento.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsEditOpen(false)}
+                  className="h-8 w-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-400 cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Form Content */}
+              <form onSubmit={handleUpdateQuote} className="flex-1 overflow-y-auto p-5 space-y-5">
+                
+                {/* Header Information */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 border-b border-slate-100 pb-4 font-sans">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Nome do Cliente *</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="Ex: Richard Hendricks"
+                      value={editCustomerName}
+                      onChange={e => setEditCustomerName(e.target.value)}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Descrição do Veículo *</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="Ex: Porsche Taycan 2021 (Branco)"
+                      value={editVehicleModel}
+                      onChange={e => setEditVehicleModel(e.target.value)}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Alíquota de Encargos / Impostos (%)</label>
+                    <input 
+                      type="number" 
+                      placeholder="8"
+                      value={editTaxRate}
+                      onChange={e => setEditTaxRate(e.target.value)}
+                      className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Line Item Adder */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 space-y-3.5">
+                  <div className="flex gap-4 border-b border-slate-200/40 pb-2">
+                    <label className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="editItemType" 
+                        checked={itemType === "part"}
+                        onChange={() => setItemType("part")}
+                        className="text-indigo-600 focus:ring-indigo-500"
+                      />
+                      Peça do Estoque
+                    </label>
+                    <label className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="editItemType" 
+                        checked={itemType === "labor"}
+                        onChange={() => setItemType("labor")}
+                        className="text-indigo-600 focus:ring-indigo-500"
+                      />
+                      Mão de Obra / Serviço
+                    </label>
+                  </div>
+
+                  {/* If choosing Part */}
+                  {itemType === "part" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Selecionar Código SKU</label>
+                        <select
+                          value={selectedPartSku}
+                          onChange={e => setSelectedPartSku(e.target.value)}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white"
+                        >
+                          <option value="">-- Selecione Peça Cadastrada --</option>
+                          <option value="custom">-- Adicionar Peça Avulsa --</option>
+                          {inventory.map(p => (
+                            <option key={p.id} value={p.sku}>{p.name} (R$ {p.price})</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {selectedPartSku === "custom" ? (
+                        <>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-500 mb-1">Nome da Peça Avulsa</label>
+                            <input 
+                              type="text" 
+                              placeholder="Ex: Escapamento esportivo customizado"
+                              value={customPartName}
+                              onChange={e => setCustomPartName(e.target.value)}
+                              className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-500 mb-1">Preço de Revenda (R$)</label>
+                            <input 
+                              type="number" 
+                              placeholder="125"
+                              value={partPrice}
+                              onChange={e => setPartPrice(e.target.value)}
+                              className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white"
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="md:col-span-2 text-xs text-slate-500 flex items-center bg-white p-2.5 rounded-lg border border-slate-200/65">
+                          <Database className="h-4 w-4 mr-2 text-indigo-500 animate-none" />
+                          {selectedPartSku ? (
+                            <span>A peça selecionada carregará o valor cadastrado de revenda automaticamente.</span>
+                          ) : (
+                            <span>Selecione uma peça cadastrada no almoxarifado para preencher o valor automaticamente.</span>
+                          )}
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Quantidade</label>
+                        <input 
+                          type="number" 
+                          placeholder="1"
+                          value={quantity}
+                          onChange={e => setQuantity(e.target.value)}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    /* If choosing Labor */
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Descrição do Serviço / Mão de Obra</label>
+                        <input 
+                          type="text" 
+                          placeholder="Ex: Alinhamento e balanceamento computadorizado"
+                          value={laborName}
+                          onChange={e => setLaborName(e.target.value)}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Horas Estimadas</label>
+                        <input 
+                          type="number" 
+                          step="0.25"
+                          placeholder="1.5"
+                          value={laborHours}
+                          onChange={e => setLaborHours(e.target.value)}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-500 mb-1">Valor da Hora (R$)</label>
+                        <input 
+                          type="number" 
+                          placeholder="120"
+                          value={laborRate}
+                          onChange={e => setLaborRate(e.target.value)}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white font-mono"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={handleAddLineItem}
+                      className="inline-flex items-center gap-1.5 bg-slate-900 text-white font-semibold py-1.5 px-3 rounded-lg text-[11px] hover:bg-slate-800 cursor-pointer"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Adicionar Item ao Orçamento
+                    </button>
+                  </div>
+                </div>
+
+                {/* Form Sheet Table preview */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Itens Atuais do Orçamento</h4>
+                  {editFormItems.length === 0 ? (
+                    <div className="p-4 border border-dashed border-slate-200 rounded-lg text-center text-slate-400 text-xs">
+                      O orçamento está atualmente vazio. Utilize o formulário acima para adicionar itens.
+                    </div>
+                  ) : (
+                    <div className="border border-slate-100 rounded-lg overflow-hidden divide-y divide-slate-100 text-xs">
+                      {editFormItems.map((item, idx) => (
+                        <div key={idx} className="p-3 bg-white hover:bg-slate-50 flex justify-between items-center">
+                          <div className="space-y-0.5">
+                            <p className="font-bold text-slate-900">{item.name}</p>
+                            <p className="text-[10px] text-indigo-600 font-semibold uppercase tracking-widest font-sans">
+                              {item.type === "part" ? `Peça • R$ ${item.unitPrice} cada` : `Mão de Obra • ${item.laborHours}h @ R$ ${item.laborRate}/h`}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            <span className="font-bold text-slate-900">
+                              {item.type === "part" ? (
+                                `R$ ${(item.unitPrice * item.quantity).toFixed(2)}`
+                              ) : (
+                                `R$ ${(item.laborHours * item.laborRate).toFixed(2)}`
+                              )}
+                              {item.type === "part" && item.quantity > 1 && (
+                                <span className="text-[9px] text-slate-400 font-medium block text-right">Qtd: {item.quantity}</span>
+                              )}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveLineItem(idx)}
+                              className="text-rose-500 hover:bg-rose-50 h-6 w-6 rounded-full flex items-center justify-center cursor-pointer"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Total box display */}
+                {editFormItems.length > 0 && (
+                  <div className="p-3 bg-indigo-50/20 border border-indigo-100/40 rounded-xl flex justify-between items-center text-xs">
+                    <span className="font-medium text-slate-600">Total Atualizado (com encargos):</span>
+                    <strong className="text-indigo-900 text-sm font-extrabold">
+                      R$ {currentEditFormTotals.total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </strong>
+                  </div>
+                )}
+
+                {/* Modal Footer */}
+                <div className="border-t border-slate-100 pt-4 flex items-center justify-end gap-3 font-sans">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditOpen(false)}
+                    className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-semibold cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={editFormItems.length === 0}
+                    className="bg-indigo-600 text-white hover:bg-indigo-500 py-2 px-5 rounded-xl text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer"
+                  >
+                    Atualizar Orçamento para Cliente
                   </button>
                 </div>
               </form>
