@@ -16,7 +16,13 @@ import {
   Database,
   ArrowRight,
   MessageSquare,
-  Edit
+  Edit,
+  ExternalLink,
+  XCircle,
+  ThumbsUp,
+  ThumbsDown,
+  AlertTriangle,
+  Smile
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -81,6 +87,12 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
   const [convertPriority, setConvertPriority] = useState<"Low" | "Medium" | "High">("Medium");
   const [convertNotes, setConvertNotes] = useState("");
 
+  // Customer Portal simulation state
+  const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
+  const [declineReason, setDeclineReason] = useState("price");
+  const [declineComments, setDeclineComments] = useState("");
+  const [isDeclineExpanded, setIsDeclineExpanded] = useState(false);
+
   const handleOpenConvertDialog = () => {
     if (!activeInspectedQuote) return;
     const matchingWO = workOrders.find(
@@ -134,7 +146,8 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
   const statusTranslations: Record<string, string> = {
     Approved: "Aprovado",
     Sent: "Enviado",
-    Draft: "Rascunho"
+    Draft: "Rascunho",
+    Rejected: "Recusado"
   };
 
   // Add Item Line to creation/edit list
@@ -323,6 +336,7 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
                   let statusBadge = "bg-slate-100 text-slate-600 border-slate-200";
                   if (quote.status === "Approved") statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-150";
                   if (quote.status === "Sent") statusBadge = "bg-blue-50 text-blue-700 border-blue-150";
+                  if (quote.status === "Rejected") statusBadge = "bg-rose-50 text-rose-700 border-rose-150";
 
                   return (
                     <div
@@ -398,6 +412,65 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
                     <p className="text-slate-400 font-mono text-[10px] mt-1">Gerado em: {activeInspectedQuote.dateCreated}</p>
                   </div>
                 </div>
+
+                {/* Cliente decision interaction and portal entry */}
+                {activeInspectedQuote.status === "Sent" && (
+                  <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs" id="client-decision-pending-banner">
+                    <div className="space-y-0.5">
+                      <p className="font-bold text-amber-900 flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                        Aguardando Decisão do Cliente
+                      </p>
+                      <p className="text-slate-500 font-medium">O orçamento foi enviado. Simule a visão do cliente para autorizar ou recusar o serviço.</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setDeclineComments("");
+                        setIsDeclineExpanded(false);
+                        setIsClientPortalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider cursor-pointer shadow-xs transition-colors shrink-0"
+                      id="btn-simulate-decision"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Simular Decisão
+                    </button>
+                  </div>
+                )}
+
+                {activeInspectedQuote.status === "Approved" && (
+                  <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs" id="client-approved-banner">
+                    <div className="space-y-0.5">
+                      <p className="font-bold text-emerald-950 flex items-center gap-1.5">
+                        <CheckCircle className="h-4 w-4 text-emerald-600" />
+                        Orçamento Autorizado / Aprovado pelo Cliente
+                      </p>
+                      <p className="text-slate-500 font-medium">Aprovado pelo cliente. Você pode iniciar os serviços e gerar a correspondente Ordem de Serviço (OS).</p>
+                    </div>
+                  </div>
+                )}
+
+                {activeInspectedQuote.status === "Rejected" && (
+                  <div className="bg-rose-50/55 border border-rose-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs" id="client-rejected-banner">
+                    <div className="space-y-0.5">
+                      <p className="font-bold text-rose-950 flex items-center gap-1.5">
+                        <XCircle className="h-4 w-4 text-rose-600" />
+                        Orçamento Recusado pelo Cliente
+                      </p>
+                      <p className="text-slate-500 font-medium">O cliente optou por recusar e não autorizar a execução destas peças e serviços no momento.</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setDeclineComments("");
+                        setIsDeclineExpanded(false);
+                        setIsClientPortalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-250 font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider cursor-pointer transition-colors shrink-0"
+                    >
+                      Alterar Resposta
+                    </button>
+                  </div>
+                )}
 
                 {/* Items Sheet table */}
                 <div className="space-y-2">
@@ -493,6 +566,22 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
                       <MessageSquare className="h-3.5 w-3.5" />
                       Enviar WhatsApp
                     </button>
+
+                    {activeInspectedQuote.status !== "Draft" && (
+                      <button
+                        onClick={() => {
+                          setDeclineComments("");
+                          setIsDeclineExpanded(false);
+                          setIsClientPortalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                        title="Simular decisão interativa do cliente"
+                        id="btn-simulate-portal-footer"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Simular Portal
+                      </button>
+                    )}
 
                     {activeInspectedQuote.status === "Draft" && (
                       <button
@@ -1428,6 +1517,274 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Interactive Customer Approval Portal Modal */}
+      <AnimatePresence>
+        {isClientPortalOpen && activeInspectedQuote && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsClientPortalOpen(false)}
+              className="fixed inset-0 bg-slate-900"
+            />
+
+            {/* Portal Modal Body */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-slate-50 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 z-10 flex flex-col max-h-[85vh] font-sans"
+              id="customer-portal-modal"
+            >
+              {/* Top Branded Badge */}
+              <div className="bg-slate-950 text-white px-5 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="bg-indigo-600 h-7 w-7 rounded-lg flex items-center justify-center text-white font-black text-sm">
+                    A
+                  </div>
+                  <div>
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400 font-bold block">Portal de Decisão do Cliente</span>
+                    <h4 className="font-extrabold text-sm tracking-tight text-white">AutoFlow Oficina Automotiva</h4>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsClientPortalOpen(false)}
+                  className="h-8 w-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Portal Header Intro */}
+              <div className="p-5 bg-white border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold text-slate-900">Olá, {activeInspectedQuote.customerName}!</h3>
+                  <p className="text-xs text-slate-500 font-medium">Por favor, revise o orçamento detalhado abaixo elaborado para seu veículo <strong>{activeInspectedQuote.vehicleModel}</strong>.</p>
+                </div>
+                <div className="text-left sm:text-right text-xs">
+                  <span className="text-[10px] text-slate-400 block font-mono">ID Orçamento</span>
+                  <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">{activeInspectedQuote.id}</span>
+                </div>
+              </div>
+
+              {/* Portal Items details view */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                
+                {/* Status Box */}
+                <div className="bg-indigo-50/50 border border-indigo-100 p-4 rounded-xl flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <div className="text-xs">
+                    <p className="font-bold text-indigo-900">Como funciona este portal?</p>
+                    <p className="text-slate-600 font-medium mt-0.5">Após analisar as peças e valores de mão de obra descritos, você pode optar por autorizar os serviços ou recusar. Sua decisão atualizará a equipe da oficina em tempo real.</p>
+                  </div>
+                </div>
+
+                {/* Main Items Table */}
+                <div className="space-y-2">
+                  <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Detalhamento Técnico de Peças e Serviços</h5>
+                  <div className="border border-slate-150 rounded-xl bg-white divide-y divide-slate-100 text-xs overflow-hidden">
+                    {activeInspectedQuote.items.map((item) => {
+                      const itemTotal = item.type === "part" ? item.unitPrice * item.quantity : item.laborHours * item.laborRate;
+                      return (
+                        <div key={item.id} className="p-3.5 flex justify-between items-center bg-white hover:bg-slate-50/40 transition-colors">
+                          <div className="space-y-1 pr-3">
+                            <p className="font-bold text-slate-900 leading-snug">{item.name}</p>
+                            <span className="inline-flex items-center text-[10px] text-slate-400 font-semibold uppercase tracking-widest font-mono">
+                              {item.type === "part" ? `Peça • Qtd: ${item.quantity} × R$ ${item.unitPrice.toFixed(2)}` : `Mão de Obra • ${item.laborHours}h × R$ ${item.laborRate.toFixed(2)}/h`}
+                            </span>
+                          </div>
+                          <span className="font-bold text-slate-950 whitespace-nowrap text-right shrink-0">
+                            R$ {itemTotal.toFixed(2)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Summary calculation totals block */}
+                <div className="bg-slate-100/50 border border-slate-200/60 p-4 rounded-xl space-y-2.5 text-xs">
+                  {(() => {
+                    const math = calculateTotals(activeInspectedQuote.items, activeInspectedQuote.taxRate);
+                    return (
+                      <>
+                        <div className="flex justify-between text-slate-500 font-medium">
+                          <span>Materiais e Peças</span>
+                          <span>R$ {math.partsCost.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-500 font-medium border-b border-slate-200 pb-2">
+                          <span>Mão de Obra Mecânica</span>
+                          <span>R$ {math.laborCost.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-500 font-medium">
+                          <span>Subtotal do Serviço</span>
+                          <span>R$ {math.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-slate-500 font-medium">
+                          <span>Taxas Locais e Encargos ({(activeInspectedQuote.taxRate * 100).toFixed(0)}%)</span>
+                          <span>R$ {math.taxAmount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-black text-indigo-950 pt-2 border-t border-slate-200">
+                          <span>VALOR TOTAL DO INVESTIMENTO</span>
+                          <span>R$ {math.total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* Decline Option area */}
+                {isDeclineExpanded && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="p-4 bg-rose-50 border border-rose-100 rounded-xl space-y-3"
+                  >
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5 animate-none" />
+                      <div>
+                        <h5 className="text-xs font-bold text-rose-950">Por que deseja recusar este orçamento?</h5>
+                        <p className="text-[10px] text-rose-800">Seu feedback é muito importante para melhorarmos nossos preços e serviços.</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium">
+                      <label className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-rose-100 hover:border-rose-200 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          name="reason" 
+                          value="price" 
+                          checked={declineReason === "price"}
+                          onChange={() => setDeclineReason("price")}
+                          className="text-rose-600 focus:ring-rose-500"
+                        />
+                        <span>Preço muito alto</span>
+                      </label>
+                      <label className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-rose-100 hover:border-rose-200 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          name="reason" 
+                          value="time" 
+                          checked={declineReason === "time"}
+                          onChange={() => setDeclineReason("time")}
+                          className="text-rose-600 focus:ring-rose-500"
+                        />
+                        <span>Indisponibilidade de tempo</span>
+                      </label>
+                      <label className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-rose-100 hover:border-rose-200 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          name="reason" 
+                          value="partial" 
+                          checked={declineReason === "partial"}
+                          onChange={() => setDeclineReason("partial")}
+                          className="text-rose-600 focus:ring-rose-500"
+                        />
+                        <span>Fazer apenas parte do serviço</span>
+                      </label>
+                      <label className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-rose-100 hover:border-rose-200 cursor-pointer">
+                        <input 
+                          type="radio" 
+                          name="reason" 
+                          value="other" 
+                          checked={declineReason === "other"}
+                          onChange={() => setDeclineReason("other")}
+                          className="text-rose-600 focus:ring-rose-500"
+                        />
+                        <span>Outro motivo</span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Comentários Adicionais (Opcional)</label>
+                      <textarea 
+                        rows={2}
+                        value={declineComments}
+                        onChange={e => setDeclineComments(e.target.value)}
+                        placeholder="Ex: Vou planejar para fazer o serviço no próximo mês..."
+                        className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 bg-white focus:outline-hidden focus:ring-1 focus:ring-rose-500 font-sans resize-none"
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setIsDeclineExpanded(false)}
+                        className="bg-white hover:bg-slate-50 border border-slate-200 font-bold px-3 py-1.5 rounded-lg text-slate-700 text-xs cursor-pointer"
+                      >
+                        Voltar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateQuoteStatus(activeInspectedQuote.id, "Rejected");
+                          const reasonMap: Record<string, string> = {
+                            price: "Valor das peças/mão de obra elevado",
+                            time: "Indisponibilidade de tempo para deixar o veículo",
+                            partial: "Deseja realizar apenas parte do serviço futuramente",
+                            other: declineComments || "Não especificado"
+                          };
+                          addActivity(
+                            "quote", 
+                            "warning", 
+                            `Orçamento ${activeInspectedQuote.id} recusado pelo cliente (${activeInspectedQuote.customerName}). Motivo: ${reasonMap[declineReason]}.`
+                          );
+                          setIsClientPortalOpen(false);
+                        }}
+                        className="bg-rose-600 hover:bg-rose-500 font-bold text-white px-4 py-1.5 rounded-lg text-xs cursor-pointer shadow-xs transition-colors"
+                      >
+                        Confirmar Recusa do Orçamento
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Portal Footer Actions */}
+              {!isDeclineExpanded && (
+                <div className="border-t border-slate-200/70 p-5 bg-white flex flex-col sm:flex-row justify-between items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-medium">
+                    <Smile className="h-4 w-4 text-indigo-500 shrink-0" />
+                    <span>Ao escolher uma das opções acima, a equipe receberá sua resposta instantaneamente.</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeclineReason("price");
+                        setIsDeclineExpanded(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition-all"
+                    >
+                      <ThumbsDown className="h-4 w-4 shrink-0" />
+                      Recusar Orçamento
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateQuoteStatus(activeInspectedQuote.id, "Approved");
+                        addActivity("quote", "success", `Cliente ${activeInspectedQuote.customerName} autorizou e aprovou o orçamento ${activeInspectedQuote.id} via Portal do Cliente!`);
+                        setIsClientPortalOpen(false);
+                      }}
+                      className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2 rounded-xl text-xs cursor-pointer shadow-xs transition-all"
+                    >
+                      <ThumbsUp className="h-4 w-4 shrink-0" />
+                      Autorizar Orçamento
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

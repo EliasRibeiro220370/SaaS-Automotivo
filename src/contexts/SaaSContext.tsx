@@ -24,7 +24,7 @@ interface SaaSContextType {
   usePartInService: (sku: string, qty: number) => boolean;
   addQuote: (quote: Omit<Quote, "id" | "dateCreated" | "status"> & { items: Omit<QuoteItem, "id">[] }) => void;
   updateQuote: (id: string, updatedQuote: Partial<Omit<Quote, "id" | "dateCreated">>) => void;
-  updateQuoteStatus: (id: string, status: "Draft" | "Sent" | "Approved") => void;
+  updateQuoteStatus: (id: string, status: "Draft" | "Sent" | "Approved" | "Rejected") => void;
   deleteQuote: (id: string) => void;
   addActivity: (category: ActivityLog["category"], type: ActivityLog["type"], text: string) => void;
   clearAllData: () => void;
@@ -285,15 +285,17 @@ export const SaaSProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }));
   };
 
-  const updateQuoteStatus = (id: string, status: "Draft" | "Sent" | "Approved") => {
+  const updateQuoteStatus = (id: string, status: "Draft" | "Sent" | "Approved" | "Rejected") => {
     setQuotes(prev => prev.map(q => {
       if (q.id === id) {
         const statusMap = {
           Draft: "Rascunho",
           Sent: "Enviado",
-          Approved: "Aprovado"
+          Approved: "Aprovado",
+          Rejected: "Recusado"
         };
-        addActivity("quote", status === "Approved" ? "success" : "info", `Orçamento ${id} atualizado para status '${statusMap[status]}'.`);
+        const actType = status === "Approved" ? "success" : (status === "Rejected" ? "warning" : "info");
+        addActivity("quote", actType, `Orçamento ${id} atualizado para status '${statusMap[status]}'.`);
         return { ...q, status };
       }
       return q;

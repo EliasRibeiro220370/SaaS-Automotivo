@@ -56,7 +56,7 @@ export interface Quote {
   items: QuoteItem[];
   taxRate: number;
   dateCreated: string;
-  status: "Draft" | "Sent" | "Approved";
+  status: "Draft" | "Sent" | "Approved" | "Rejected";
 }
 
 export type ActivityCategory = "repair" | "inventory" | "ai" | "quote" | "system";
