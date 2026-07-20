@@ -179,20 +179,6 @@ Durante o desenvolvimento foram utilizadas técnicas para otimizar o desempenho 
 
 ---
 
-# 🚀 Como executar
-
-```bash
-git clone https://github.com/SEU-USUARIO/automotive-saas-showcase
-
-cd automotive-saas-showcase
-
-npm install
-
-npm run dev
-```
-
----
-
 # 👨‍💻 Desenvolvedor
 
 **Elias Ribeiro**
