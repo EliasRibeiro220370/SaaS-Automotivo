@@ -18,8 +18,6 @@ A versão original deste projeto encontra-se em produção e pode ser acessada a
 
 **🔗 https://oficina-pro-gules.vercel.app**
 
- **Observação:** Este repositório apresenta uma versão demonstrativa preparada exclusivamente para fins de portfólio. Algumas funcionalidades, dados e configurações foram adaptados para preservar informações comerciais e a privacidade do cliente.
-
 ---
 
 # 📌 Sobre este projeto
