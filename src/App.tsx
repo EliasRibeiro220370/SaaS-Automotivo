@@ -241,7 +241,7 @@ function AppContent() {
                 )}
                 {activeTab === "copilot" && <AiCopilot />}
                 {activeTab === "inventory" && <InventoryHub />}
-                {activeTab === "quotes" && <QuoteGenerator />}
+                {activeTab === "quotes" && <QuoteGenerator setActiveTab={setActiveTab} />}
               </motion.div>
             </AnimatePresence>
           </div>
