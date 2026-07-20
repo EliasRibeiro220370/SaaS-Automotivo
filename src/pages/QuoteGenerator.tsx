@@ -31,6 +31,7 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
   const [customerName, setCustomerName] = useState("");
   const [vehicleModel, setVehicleModel] = useState("");
   const [taxRate, setTaxRate] = useState("8");
+  const [selectedWOId, setSelectedWOId] = useState("");
 
   // Items in active creation form
   const [formItems, setFormItems] = useState<Omit<QuoteItem, "id">[]>([]);
@@ -191,6 +192,7 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
     setCustomerName("");
     setVehicleModel("");
     setTaxRate("8");
+    setSelectedWOId("");
     setFormItems([]);
     setIsCreateOpen(false);
   };
@@ -231,6 +233,19 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
         <button
           onClick={() => {
             setFormItems([]);
+            if (workOrders && workOrders.length > 0) {
+              const latestClient = workOrders[0];
+              setCustomerName(latestClient.customerName);
+              const vehicleDetails = latestClient.licensePlate && latestClient.licensePlate !== "S/P" 
+                ? `${latestClient.vehicleModel} (${latestClient.licensePlate})` 
+                : latestClient.vehicleModel;
+              setVehicleModel(vehicleDetails);
+              setSelectedWOId(latestClient.id);
+            } else {
+              setCustomerName("");
+              setVehicleModel("");
+              setSelectedWOId("");
+            }
             setIsCreateOpen(true);
           }}
           className="inline-flex items-center gap-2 bg-slate-900 text-white hover:bg-slate-800 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm cursor-pointer"
@@ -524,6 +539,46 @@ export const QuoteGenerator: React.FC<QuoteGeneratorProps> = ({ setActiveTab }) 
               {/* Form Content */}
               <form onSubmit={handleSaveQuote} className="flex-1 overflow-y-auto p-5 space-y-5">
                 
+                {/* Pull from registered client selection */}
+                {workOrders && workOrders.length > 0 && (
+                  <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 font-sans">
+                    <div className="flex items-center gap-2 text-indigo-950">
+                      <User className="h-4 w-4 text-indigo-600 shrink-0" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">Vincular Cliente Cadastrado</p>
+                        <p className="text-[10px] text-slate-500">Selecione uma Ordem de Serviço para carregar os dados de veículo e cliente automaticamente.</p>
+                      </div>
+                    </div>
+                    <select
+                      value={selectedWOId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedWOId(val);
+                        if (val === "custom" || val === "") {
+                          setCustomerName("");
+                          setVehicleModel("");
+                        } else {
+                          const wo = workOrders.find(w => w.id === val);
+                          if (wo) {
+                            setCustomerName(wo.customerName);
+                            setVehicleModel(wo.licensePlate && wo.licensePlate !== "S/P" 
+                              ? `${wo.vehicleModel} (${wo.licensePlate})` 
+                              : wo.vehicleModel);
+                          }
+                        }
+                      }}
+                      className="text-xs border border-indigo-200 rounded-lg px-2.5 py-1.5 bg-white text-indigo-900 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 max-w-xs sm:w-auto w-full font-semibold cursor-pointer"
+                    >
+                      <option value="custom">-- Digitar Manualmente / Limpar --</option>
+                      {workOrders.map(wo => (
+                        <option key={wo.id} value={wo.id}>
+                          {wo.customerName} - {wo.vehicleModel} ({wo.id})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 {/* Header Information */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 border-b border-slate-100 pb-4 font-sans">
                   <div>
