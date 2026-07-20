@@ -197,7 +197,7 @@ Algumas funcionalidades, dados e configurações foram adaptados para preservar 
 
 ---
 
-## ⭐ Gostou do projeto?
+## Gostou do projeto?
 
 Se este projeto foi útil ou inspirador, deixe uma ⭐ no repositório.
 
