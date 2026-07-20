@@ -1,0 +1,6 @@
+{
+  "name": "Automotive SaaS Showcase",
+  "description": "An all-in-one modern CRM, Repair Pipeline, and AI-Powered Diagnostic Copilot designed for automotive workshops and detailing centers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
