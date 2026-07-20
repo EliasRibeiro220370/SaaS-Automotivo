@@ -14,12 +14,13 @@ import {
   FileCheck,
   ChevronRight,
   Database,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export const QuoteGenerator: React.FC = () => {
-  const { quotes, inventory, addQuote, updateQuoteStatus, deleteQuote, addActivity } = useSaaS();
+  const { quotes, inventory, workOrders, addQuote, updateQuoteStatus, deleteQuote, addActivity } = useSaaS();
 
   // Create Quote Modal
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -44,6 +45,21 @@ export const QuoteGenerator: React.FC = () => {
   const [inspectedQuoteId, setInspectedQuoteId] = useState<string | null>(null);
 
   const activeInspectedQuote = quotes.find(q => q.id === inspectedQuoteId) || null;
+
+  // WhatsApp Share State
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState("");
+
+  const handleOpenWhatsAppDialog = () => {
+    if (!activeInspectedQuote) return;
+    const matchingWO = workOrders.find(
+      wo => wo.customerName.toLowerCase() === activeInspectedQuote.customerName.toLowerCase()
+    );
+    // Remove formatting like parentheses, spaces, and hyphens for a clean number
+    const formattedPhone = matchingWO ? matchingWO.phone.replace(/\D/g, "") : "";
+    setWhatsappPhone(formattedPhone);
+    setIsWhatsAppOpen(true);
+  };
 
   // Status mapping
   const statusTranslations: Record<string, string> = {
@@ -341,13 +357,22 @@ export const QuoteGenerator: React.FC = () => {
                   </button>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleOpenWhatsAppDialog}
+                      className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer border border-emerald-500"
+                      title="Enviar via WhatsApp"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5" />
+                      Enviar WhatsApp
+                    </button>
+
                     {activeInspectedQuote.status === "Draft" && (
                       <button
                         onClick={() => updateQuoteStatus(activeInspectedQuote.id, "Sent")}
                         className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border border-slate-250"
                       >
                         <Send className="h-3.5 w-3.5" />
-                        Marcar como Enviado
+                        Marcar Enviado
                       </button>
                     )}
 
@@ -357,7 +382,7 @@ export const QuoteGenerator: React.FC = () => {
                         className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                       >
                         <FileCheck className="h-3.5 w-3.5" />
-                        Aprovar Orçamento
+                        Aprovar
                       </button>
                     )}
 
@@ -675,6 +700,130 @@ export const QuoteGenerator: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* WhatsApp Share Modal */}
+      <AnimatePresence>
+        {isWhatsAppOpen && activeInspectedQuote && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsWhatsAppOpen(false)}
+              className="fixed inset-0 bg-black"
+            />
+
+            {/* Modal Body */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-100 z-10 flex flex-col"
+              id="whatsapp-share-modal"
+            >
+              {/* Header */}
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-emerald-50">
+                <div className="flex items-center gap-2 text-emerald-800">
+                  <MessageSquare className="h-5 w-5 text-emerald-600" />
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-950">Enviar Orçamento via WhatsApp</h3>
+                    <p className="text-[10px] text-emerald-700">Envie o resumo do orçamento para o cliente em um clique.</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsWhatsAppOpen(false)}
+                  className="h-8 w-8 rounded-full hover:bg-emerald-100/50 flex items-center justify-center text-slate-400 cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Form Content */}
+              <div className="p-5 space-y-4 text-xs">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">WhatsApp do Cliente (Apenas Números com DDD)</label>
+                  <input 
+                    type="tel" 
+                    placeholder="Ex: 11999991234"
+                    value={whatsappPhone}
+                    onChange={e => setWhatsappPhone(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-emerald-500 font-mono animate-none"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">O número deve incluir o DDD (Exemplo: 11999991234). Não use parênteses ou traços no link final.</p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Prévia da Mensagem</label>
+                  <div className="bg-slate-50 border border-slate-100 p-3 rounded-lg text-[11px] text-slate-600 font-sans whitespace-pre-wrap max-h-48 overflow-y-auto leading-relaxed">
+                    {(() => {
+                      const math = calculateTotals(activeInspectedQuote.items, activeInspectedQuote.taxRate);
+                      return `Olá *${activeInspectedQuote.customerName}*! Segue o resumo do seu orçamento:\n\n` +
+                        `🚗 *Veículo*: ${activeInspectedQuote.vehicleModel}\n` +
+                        `📋 *Orçamento*: ${activeInspectedQuote.id}\n\n` +
+                        `*Serviços & Peças*:\n` +
+                        activeInspectedQuote.items.map(item => {
+                          const detail = item.type === "part" ? `Qtd: ${item.quantity} x R$ ${item.unitPrice.toFixed(2)}` : `${item.laborHours}h @ R$ ${item.laborRate.toFixed(2)}/h`;
+                          const value = item.type === "part" ? item.unitPrice * item.quantity : item.laborHours * item.laborRate;
+                          return `• ${item.name}: *R$ ${value.toFixed(2)}* (${detail})`;
+                        }).join("\n") +
+                        `\n\n💰 *Subtotal*: R$ ${math.subtotal.toFixed(2)}` +
+                        `\n📈 *Taxas/ISS*: R$ ${math.taxAmount.toFixed(2)}` +
+                        `\n⭐ *Valor Total*: R$ ${math.total.toFixed(2)}` +
+                        `\n\nPara aprovar ou tirar dúvidas, por favor entre em contato conosco! Obrigado pela preferência.\n\n_AutoFlow - Serviços Automotivos_`;
+                    })()}
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="border-t border-slate-100 pt-4 flex items-center justify-end gap-3 font-sans">
+                  <button
+                    type="button"
+                    onClick={() => setIsWhatsAppOpen(false)}
+                    className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-semibold cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Format clean phone number: remove non-digits
+                      const cleanPhone = whatsappPhone.replace(/\D/g, "");
+                      const math = calculateTotals(activeInspectedQuote.items, activeInspectedQuote.taxRate);
+                      const msg = `Olá *${activeInspectedQuote.customerName}*! Segue o resumo do seu orçamento:\n\n` +
+                        `🚗 *Veículo*: ${activeInspectedQuote.vehicleModel}\n` +
+                        `📋 *Orçamento*: ${activeInspectedQuote.id}\n\n` +
+                        `*Serviços & Peças*:\n` +
+                        activeInspectedQuote.items.map(item => {
+                          const detail = item.type === "part" ? `Qtd: ${item.quantity} x R$ ${item.unitPrice.toFixed(2)}` : `${item.laborHours}h @ R$ ${item.laborRate.toFixed(2)}/h`;
+                          const value = item.type === "part" ? item.unitPrice * item.quantity : item.laborHours * item.laborRate;
+                          return `• ${item.name}: *R$ ${value.toFixed(2)}* (${detail})`;
+                        }).join("\n") +
+                        `\n\n💰 *Subtotal*: R$ ${math.subtotal.toFixed(2)}` +
+                        `\n📈 *Taxas/ISS*: R$ ${math.taxAmount.toFixed(2)}` +
+                        `\n⭐ *Valor Total*: R$ ${math.total.toFixed(2)}` +
+                        `\n\nPara aprovar ou tirar dúvidas, por favor entre em contato conosco! Obrigado pela preferência.\n\n_AutoFlow - Serviços Automotivos_`;
+                      
+                      const url = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
+                      window.open(url, "_blank");
+                      
+                      // Also update status to Sent
+                      updateQuoteStatus(activeInspectedQuote.id, "Sent");
+                      addActivity("quote", "success", `Orçamento ${activeInspectedQuote.id} enviado via WhatsApp para ${activeInspectedQuote.customerName}.`);
+                      setIsWhatsAppOpen(false);
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-5 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Abrir WhatsApp e Enviar
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}

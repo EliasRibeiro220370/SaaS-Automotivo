@@ -32,103 +32,7 @@ interface SaaSContextType {
 const SaaSContext = createContext<SaaSContextType | undefined>(undefined);
 
 // Initial Mock Datasets Localized in PT-BR
-const initialWorkOrders: WorkOrder[] = [
-  {
-    id: "OS-101",
-    vehicleModel: "2021 Ford Mustang GT (Preto Shadow)",
-    customerName: "Alex Mercer",
-    licensePlate: "GT-FAST1",
-    phone: "(11) 98765-4321",
-    serviceType: "Inspeção de Desempenho e Sistema de Freio",
-    status: "InProgress",
-    priority: "High",
-    dateIn: "2026-07-19",
-    totalCost: 450,
-    notes: "Cliente relatou ruídos ao frear em baixas velocidades e pedal de freio borrachudo. Verificar desgaste das pastilhas e pinças.",
-    checklist: [
-      { id: "c1", task: "Realizar teste de rodagem para confirmar ruído nos freios", done: true },
-      { id: "c2", task: "Medir espessura das pastilhas de freio dianteiras e traseiras", done: true },
-      { id: "c3", task: "Substituir pastilhas de freio gastas e sangrar o sistema", done: false },
-      { id: "c4", task: "Realizar teste de segurança na estrada pós-instalação", done: false },
-    ]
-  },
-  {
-    id: "OS-102",
-    vehicleModel: "2019 Tesla Model 3 (Branco Pérola)",
-    customerName: "Sarah Connor",
-    licensePlate: "E-DRIVE9",
-    phone: "(21) 91234-5678",
-    serviceType: "Limpeza do Líquido de Arrefecimento da Bateria e Sincronização de Software",
-    status: "Diagnostics",
-    priority: "Medium",
-    dateIn: "2026-07-20",
-    totalCost: 320,
-    notes: "Manutenção programada para verificação do sistema térmico da bateria. Verificar lentidão ocasional na tela central.",
-    checklist: [
-      { id: "c5", task: "Executar diagnóstico completo do sistema de arrefecimento via OBD", done: true },
-      { id: "c6", task: "Inspecionar mangueiras de arrefecimento em busca de microfissuras", done: false },
-      { id: "c7", task: "Drenar e substituir o fluido de arrefecimento da bateria", done: false },
-    ]
-  },
-  {
-    id: "OS-103",
-    vehicleModel: "2022 Porsche Macan GTS (Vermelho Carmine)",
-    customerName: "David Vance",
-    licensePlate: "P-GTS911",
-    phone: "(31) 98888-7777",
-    serviceType: "Polimento Técnico e Aplicação de Vitrificador Cerâmico (3 anos)",
-    status: "QualityCheck",
-    priority: "Low",
-    dateIn: "2026-07-18",
-    totalCost: 1250,
-    notes: "Descontaminação completa da pintura, correção de pintura em múltiplas etapas e aplicação de proteção cerâmica premium.",
-    checklist: [
-      { id: "c8", task: "Lavagem detalhada e descontaminação com clay bar", done: true },
-      { id: "c9", task: "Correção de pintura (Etapa de Corte e Refino)", done: true },
-      { id: "c10", task: "Aplicação de dupla camada de vitrificador nano cerâmico", done: true },
-      { id: "c11", task: "Cura do revestimento sob lâmpadas de calor infravermelho", done: true },
-      { id: "c12", task: "Inspeção final sob luzes LED especiais de detalhamento", done: false },
-    ]
-  },
-  {
-    id: "OS-104",
-    vehicleModel: "2018 Toyota RAV4 AWD (Prata Metálico)",
-    customerName: "Elena Rostova",
-    licensePlate: "RAV-4WD7",
-    phone: "(41) 97777-6666",
-    serviceType: "Diagnóstico de Falha de Ignição no Motor",
-    status: "Received",
-    priority: "High",
-    dateIn: "2026-07-20",
-    totalCost: 180,
-    notes: "Marcha lenta irregular e luz de injeção piscando. Cliente afirma que o carro treme na aceleração. Obter códigos OBD.",
-    checklist: [
-      { id: "c13", task: "Conectar scanner OBD-II e ler códigos de falha", done: false },
-      { id: "c14", task: "Inspecionar velas de ignição e bobinas", done: false },
-      { id: "c15", task: "Verificar mangueiras de vácuo contra vazamentos", done: false },
-    ]
-  },
-  {
-    id: "OS-105",
-    vehicleModel: "2020 Honda Civic Type R (Branco Championship)",
-    customerName: "Marcus Vance",
-    licensePlate: "R-09822",
-    phone: "(11) 99999-8888",
-    serviceType: "Preparação para Track Day: Óleo, Fluido de Freio e Alinhamento",
-    status: "Ready",
-    priority: "Medium",
-    dateIn: "2026-07-17",
-    dateOut: "2026-07-20",
-    totalCost: 580,
-    notes: "Preparação pré-pista. Realizar alinhamento personalizado de alta performance, trocar fluido de freio por Castrol SRF.",
-    checklist: [
-      { id: "c16", task: "Drenar e reabastecer óleo do motor com Motul 0W-40", done: true },
-      { id: "c17", task: "Substituir fluido de freio por fluido de corrida de alta temperatura", done: true },
-      { id: "c18", task: "Realizar alinhamento agressivo para pista", done: true },
-      { id: "c19", task: "Verificar torque de todos os parafusos da suspensão", done: true },
-    ]
-  }
-];
+const initialWorkOrders: WorkOrder[] = [];
 
 const initialInventory: Part[] = [
   { id: "P-01", name: "Pastilhas de Freio Cerâmicas de Alta Performance (Par Dianteiro)", sku: "BP-CER-F4", category: "Freios", quantity: 12, minQuantity: 4, cost: 45, price: 95, supplier: "ApexBrakes Inc", shelfLocation: "A-04" },
@@ -140,84 +44,80 @@ const initialInventory: Part[] = [
   { id: "P-07", name: "Bobina de Ignição de Alta Performance OEM", sku: "IC-COIL-OEM", category: "Ignição", quantity: 8, minQuantity: 4, cost: 35, price: 79, supplier: "AutoIgnite Ltd", shelfLocation: "B-14" }
 ];
 
-const initialQuotes: Quote[] = [
-  {
-    id: "Q-1001",
-    customerName: "Alex Mercer",
-    vehicleModel: "2021 Ford Mustang GT",
-    taxRate: 0.08,
-    dateCreated: "2026-07-19",
-    status: "Approved",
-    items: [
-      { id: "qi1", name: "Pastilhas de Freio Cerâmicas de Alta Performance (Par Dianteiro)", quantity: 1, unitPrice: 95, laborHours: 0, laborRate: 0, type: "part" },
-      { id: "qi2", name: "Fluido de Freio e Purga Completa", quantity: 1, unitPrice: 40, laborHours: 0, laborRate: 0, type: "part" },
-      { id: "qi3", name: "Mão de Obra de Instalação de Pastilhas de Freio", quantity: 1, unitPrice: 0, laborHours: 1.5, laborRate: 140, type: "labor" },
-      { id: "qi4", name: "Diagnóstico Avançado do Sistema de Freios", quantity: 1, unitPrice: 0, laborHours: 0.75, laborRate: 140, type: "labor" }
-    ]
-  },
-  {
-    id: "Q-1002",
-    customerName: "Elena Rostova",
-    vehicleModel: "2018 Toyota RAV4 AWD",
-    taxRate: 0.08,
-    dateCreated: "2026-07-20",
-    status: "Draft",
-    items: [
-      { id: "qi5", name: "Vela de Ignição Laser Platinum NGK", quantity: 4, unitPrice: 12, laborHours: 0, laborRate: 0, type: "part" },
-      { id: "qi6", name: "Filtro de Ar de Motor OEM - Substituição", quantity: 1, unitPrice: 22, laborHours: 0, laborRate: 0, type: "part" },
-      { id: "qi7", name: "Mão de Obra de Troca e Diagnóstico de Velas/Bobinas", quantity: 1, unitPrice: 0, laborHours: 1.25, laborRate: 120, type: "labor" }
-    ]
-  }
-];
+const initialQuotes: Quote[] = [];
 
 const initialActivities: ActivityLog[] = [
   { id: "act-1", timestamp: "2026-07-20T12:30:00Z", type: "info", category: "system", text: "Painel AutoFlow SaaS carregado com sucesso." },
-  { id: "act-2", timestamp: "2026-07-20T11:45:00Z", type: "success", category: "repair", text: "Ordem de Serviço OS-105 marcada como PRONTA para o Civic Type R de Marcus Vance." },
-  { id: "act-3", timestamp: "2026-07-20T10:15:00Z", type: "warning", category: "inventory", text: "Alerta de Estoque: Filtro de Cabine HEPA está abaixo do limite de segurança (restam apenas 2 unidades)." },
-  { id: "act-4", timestamp: "2026-07-20T09:00:00Z", type: "success", category: "quote", text: "O orçamento Q-1001 para Alex Mercer foi APROVADO." },
+  { id: "act-3", timestamp: "2026-07-20T10:15:00Z", type: "warning", category: "inventory", text: "Alerta de Estoque: Filtro de Cabine HEPA está abaixo do limite de segurança." }
 ];
 
 export const SaaSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
-  const [inventory, setInventory] = useState<Part[]>([]);
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [activities, setActivities] = useState<ActivityLog[]>([]);
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(() => {
+    const stored = localStorage.getItem("autoflow_work_orders");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.filter((wo: any) => wo.licensePlate !== "KYC2961");
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
 
-  // Load from local storage or set defaults
-  useEffect(() => {
-    const storedWorkOrders = localStorage.getItem("autoflow_work_orders");
-    const storedInventory = localStorage.getItem("autoflow_inventory");
-    const storedQuotes = localStorage.getItem("autoflow_quotes");
-    const storedActivities = localStorage.getItem("autoflow_activities");
+  const [inventory, setInventory] = useState<Part[]>(() => {
+    const stored = localStorage.getItem("autoflow_inventory");
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        return initialInventory;
+      }
+    }
+    return initialInventory;
+  });
 
-    if (storedWorkOrders) setWorkOrders(JSON.parse(storedWorkOrders));
-    else setWorkOrders(initialWorkOrders);
+  const [quotes, setQuotes] = useState<Quote[]>(() => {
+    const stored = localStorage.getItem("autoflow_quotes");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.filter((q: any) => !q.vehicleModel.includes("KYC2961") && q.customerName !== "Elias Ribeiro");
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
 
-    if (storedInventory) setInventory(JSON.parse(storedInventory));
-    else setInventory(initialInventory);
-
-    if (storedQuotes) setQuotes(JSON.parse(storedQuotes));
-    else setQuotes(initialQuotes);
-
-    if (storedActivities) setActivities(JSON.parse(storedActivities));
-    else setActivities(initialActivities);
-  }, []);
+  const [activities, setActivities] = useState<ActivityLog[]>(() => {
+    const stored = localStorage.getItem("autoflow_activities");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.filter((act: any) => !act.text.includes("KYC2961") && !act.text.includes("Elias Ribeiro"));
+      } catch (e) {
+        return initialActivities;
+      }
+    }
+    return initialActivities;
+  });
 
   // Sync back to local storage
   useEffect(() => {
-    if (workOrders.length > 0) localStorage.setItem("autoflow_work_orders", JSON.stringify(workOrders));
+    localStorage.setItem("autoflow_work_orders", JSON.stringify(workOrders));
   }, [workOrders]);
 
   useEffect(() => {
-    if (inventory.length > 0) localStorage.setItem("autoflow_inventory", JSON.stringify(inventory));
+    localStorage.setItem("autoflow_inventory", JSON.stringify(inventory));
   }, [inventory]);
 
   useEffect(() => {
-    if (quotes.length > 0) localStorage.setItem("autoflow_quotes", JSON.stringify(quotes));
+    localStorage.setItem("autoflow_quotes", JSON.stringify(quotes));
   }, [quotes]);
 
   useEffect(() => {
-    if (activities.length > 0) localStorage.setItem("autoflow_activities", JSON.stringify(activities));
+    localStorage.setItem("autoflow_activities", JSON.stringify(activities));
   }, [activities]);
 
   // Logging utility
