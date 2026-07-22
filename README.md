@@ -157,7 +157,7 @@ Durante o desenvolvimento foram utilizadas técnicas para otimizar o desempenho 
 # 🚀 Melhorias Futuras
 
 * Dashboard com indicadores
-* [V] Controle de estoque
+* [ ] Controle de estoque
 * [ ] Agenda de serviços
 * [ ] Emissão de PDF
 * [ ] Integração com WhatsApp
